@@ -1,4 +1,4 @@
-package com.app.weatherforecast.core.net
+package com.app.weatherforecast.core.utils
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -15,6 +15,4 @@ fun getJSON(module: SerializersModule? = null): Json = Json {
 /**
  * Common [Json] configuration
  */
-val JSON: Json = getJSON(SerializersModule {
-    // Add any contextual serializers here
-})
+val JSON: Json = getJSON()

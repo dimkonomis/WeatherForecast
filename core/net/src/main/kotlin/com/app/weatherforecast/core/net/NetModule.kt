@@ -5,6 +5,7 @@ import com.app.weatherforecast.core.net.interceptor.AppIdParamInterceptor
 import com.app.weatherforecast.core.net.qualifier.AppIdInterceptor
 import com.app.weatherforecast.core.net.qualifier.BaseUrl
 import com.app.weatherforecast.core.net.qualifier.LoggingInterceptor
+import com.app.weatherforecast.core.utils.JSON
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

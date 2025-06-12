@@ -1,10 +1,10 @@
 plugins {
     id("com.app.weatherforecast.library")
-    id("com.app.weatherforecast.hilt")
+    id("kotlinx-serialization")
 }
 
 android {
-    namespace = "com.app.weatherforecast.core.utils"
+    namespace = "com.app.weatherforecast.contract.location"
 }
 
 dependencies {

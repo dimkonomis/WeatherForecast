@@ -10,6 +10,8 @@ appcompat = "1.7.1"
 lifecycle = "2.9.1"
 material = "1.12.0"
 composeBom = "2025.06.00"
+permissions = "0.34.0"
+maps = "4.2.0"
 hilt = "2.56.2"
 hiltCompose = "1.2.0"
 timber = "5.0.1"
@@ -18,6 +20,8 @@ retrofit = "2.11.0"
 ok2curl = "0.7.0"
 flipper = "0.250.0"
 flipperSoloader = "0.11.0"
+datastore = "1.1.7"
+location = "21.0.1"
 turbine = "1.2.0"
 mockk = "1.14.2"
 junit = "4.13.2"
@@ -61,7 +65,11 @@ flipper-network-plugin = { group = "com.facebook.flipper", name = "flipper-netwo
 flipper-soloader = { group = "com.facebook.soloader", name = "soloader", version.ref = "flipperSoloader" }
 
 #etc
+permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "permissions" }
+maps = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps" }
+location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "location" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 #gradle
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }

@@ -1,5 +1,6 @@
 package com.app.weatherforecast.core.utils
 
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,10 +9,18 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal object UtilsModule {
+internal interface UtilsModule {
 
+    @Binds
     @Singleton
-    @Provides
-    fun provideDispatcherProvider(): DispatcherProvider = DispatcherProviderImpl
+    fun bindSdkProvider(sdkProviderImpl: SdkProviderImpl): SdkProvider
+
+    companion object {
+
+        @Singleton
+        @Provides
+        fun provideDispatcherProvider(): DispatcherProvider = DispatcherProviderImpl
+
+    }
 
 }

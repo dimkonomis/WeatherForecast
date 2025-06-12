@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_label_disclaimer">Long press on the map to select a location.</string>
+    <string name="location_label_disclaimer_action">Got it</string>
+    <string name="location_label_permission_required">Location permission is required to access your current location.</string>
+    <string name="location_label_permission_required_action">Grant Permission</string>
+    <string name="location_label_position_selected">Location has been selected: %1s.</string>
+    <string name="location_label_position_selected_action">Confirm</string>
+    <string name="location_label_position_selection_failed">Failed to retrieve location details. Please try again.</string>
+</resources>

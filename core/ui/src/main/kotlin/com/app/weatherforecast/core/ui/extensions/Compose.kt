@@ -1,24 +1,28 @@
 package com.app.weatherforecast.core.ui.extensions
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun <T : Any> SingleEventEffect(
-    sideEffectChannel: ReceiveChannel<T>,
+    sideEffectFlow: Flow<T>,
     lifeCycleState: State = State.STARTED,
     collector: (T) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(sideEffectChannel) {
+    LaunchedEffect(sideEffectFlow) {
         lifecycleOwner.repeatOnLifecycle(lifeCycleState) {
-            sideEffectChannel.receiveAsFlow().collect(collector)
+            sideEffectFlow.collect(collector)
         }
     }
+}
+
+fun SnackbarHostState.dismiss() {
+    currentSnackbarData?.dismiss()
 }

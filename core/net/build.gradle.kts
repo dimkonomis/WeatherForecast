@@ -13,9 +13,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:utils"))
+
     api(libs.retrofit)
     api(libs.kotlinx.serialization)
-    api(libs.retrofit.kotlinx.serialization)
+    implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp.logging)
     implementation(libs.ok2curl)
     debugImplementation(libs.flipper)
