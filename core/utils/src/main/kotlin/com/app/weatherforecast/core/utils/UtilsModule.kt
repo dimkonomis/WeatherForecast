@@ -21,6 +21,10 @@ internal interface UtilsModule {
         @Provides
         fun provideDispatcherProvider(): DispatcherProvider = DispatcherProviderImpl
 
+        @Singleton
+        @Provides
+        fun provideDateProvider(): DateProvider = DateProviderImpl
+
     }
 
 }

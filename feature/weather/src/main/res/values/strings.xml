@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="weather_label_title">Weather</string>
+    <string name="weather_label_today">Today</string>
+    <string name="weather_label_forecast">Forecast</string>
+    <string name="weather_label_error">An error occurred while fetching data. Please try again.</string>
+    <string name="weather_label_feel_like">Feel like %s\u2103</string>
+    <string name="weather_label_visibility">Visibility</string>
+    <string name="weather_label_humidity">Humidity</string>
+    <string name="weather_label_wind">Wind</string>
+    <string name="weather_label_pressure">Pressure</string>
+    <string name="weather_label_placeholder_temperature">%1s\u2103</string>
+    <string name="weather_label_placeholder_km">%1s km</string>
+    <string name="weather_label_placeholder_kmh">%1s km/h</string>
+    <string name="weather_label_placeholder_percentage">%1s %%</string>
+    <string name="weather_label_placeholder_pressure">%1s hPa</string>
+    <string name="weather_button_try_again">Try Again</string>
+</resources>

@@ -24,6 +24,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 }
 
                 compileOptions {
+                    isCoreLibraryDesugaringEnabled = true
                     sourceCompatibility = JavaVersion.VERSION_17
                     targetCompatibility = JavaVersion.VERSION_17
                 }
@@ -49,6 +50,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             dependencies {
                 add("implementation", libraries.findLibrary("timber").get())
                 add("implementation", libraries.findLibrary("kotlinx.coroutines").get())
+
+                add("coreLibraryDesugaring", libraries.findLibrary("desugar").get())
             }
         }
     }

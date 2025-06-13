@@ -11,11 +11,34 @@ import com.google.android.gms.maps.model.LatLng
  * - [pinned] - The new pinned location.
  */
 internal data class LocationUiState(
-    val selected: Location = Location.NotAvailable,
-    val current: Location = Location.NotAvailable,
-    val pinned: Location = Location.NotAvailable,
+    val selected: UiLocation = UiLocation.NotAvailable,
+    val current: UiLocation = UiLocation.NotAvailable,
+    val pinned: UiLocation = UiLocation.NotAvailable,
     val isLoading: Boolean = false
-)
+) {
+
+    sealed interface UiLocation {
+        val lat: Double
+        val long: Double
+
+        data class Pinned(
+            val name: String,
+            override val lat: Double,
+            override val long: Double
+        ) : UiLocation
+
+        data class Map(
+            override val lat: Double,
+            override val long: Double
+        ) : UiLocation
+
+        data object NotAvailable : UiLocation {
+            override val lat: Double = 0.0
+            override val long: Double = 0.0
+        }
+    }
+
+}
 
 internal sealed interface LocationUiAction {
     data class SelectLocation(val latLng: LatLng) : LocationUiAction

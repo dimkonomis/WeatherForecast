@@ -5,12 +5,15 @@ import com.app.weatherforecast.core.net.interceptor.AppIdParamInterceptor
 import com.app.weatherforecast.core.net.qualifier.AppIdInterceptor
 import com.app.weatherforecast.core.net.qualifier.BaseUrl
 import com.app.weatherforecast.core.net.qualifier.LoggingInterceptor
+import com.app.weatherforecast.core.net.serializer.DateSerializer
 import com.app.weatherforecast.core.utils.JSON
+import com.app.weatherforecast.core.utils.getJSON
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.modules.SerializersModule
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -60,7 +63,7 @@ internal interface NetModule {
         ): Retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
-            .addConverterFactory(JSON.asConverterFactory(MEDIA_TYPE_JSON))
+            .addConverterFactory(factory)
             .build()
 
     }

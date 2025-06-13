@@ -10,6 +10,7 @@ import com.app.weatherforecast.feature.location.domain.LocationState
 import com.app.weatherforecast.feature.location.domain.LocationUseCase
 import com.app.weatherforecast.feature.location.presentation.LocationUiEffect.ShowNewSelection
 import com.app.weatherforecast.feature.location.presentation.LocationUiEffect.ShowNewSelectionError
+import com.app.weatherforecast.feature.location.presentation.LocationUiState.UiLocation
 import com.app.weatherforecast.feature.location.presentation.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
 import io.mockk.coEvery
@@ -92,9 +93,9 @@ class LocationViewModelTest {
         viewModel.uiState.test {
             // Then
             val item = awaitItem()
-            assert(Location.NotAvailable == item.selected)
-            assert(Location.NotAvailable == item.current)
-            assert(Location.NotAvailable == item.pinned)
+            assert(UiLocation.NotAvailable == item.selected)
+            assert(UiLocation.NotAvailable == item.current)
+            assert(UiLocation.NotAvailable == item.pinned)
             assert(false == item.isLoading)
         }
     }
@@ -120,9 +121,9 @@ class LocationViewModelTest {
         viewModel.uiState.drop(1).test {
             // Then
             val item = awaitItem()
-            assert(selected == item.selected)
-            assert(Available(lat = 3.0, long = 4.0) == item.current)
-            assert(decode == item.pinned)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
+            assert(UiLocation.Map(3.0, long = 4.0) == item.current)
+            assert(UiLocation.Pinned("Test Location", 5.0, 6.0) == item.pinned)
             assert(false == item.isLoading)
         }
     }
@@ -147,9 +148,9 @@ class LocationViewModelTest {
         viewModel.uiState.drop(1).test {
             // Then
             val item = awaitItem()
-            assert(Location.NotAvailable == item.selected)
-            assert(Available(lat = 3.0, long = 4.0) == item.current)
-            assert(decode == item.pinned)
+            assert(UiLocation.NotAvailable == item.selected)
+            assert(UiLocation.Map(lat = 3.0, long = 4.0) == item.current)
+            assert(UiLocation.Pinned("Test Location", 5.0, 6.0) == item.pinned)
             assert(false == item.isLoading)
         }
     }
@@ -174,9 +175,9 @@ class LocationViewModelTest {
         viewModel.uiState.drop(1).test {
             // Then
             val item = awaitItem()
-            assert(selected == item.selected)
-            assert(selected == item.current)
-            assert(decode == item.pinned)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.current)
+            assert(UiLocation.Pinned("Test Location", 5.0, 6.0) == item.pinned)
             assert(false == item.isLoading)
         }
     }
@@ -200,9 +201,9 @@ class LocationViewModelTest {
         viewModel.uiState.drop(1).test {
             // Then
             val item = awaitItem()
-            assert(selected == item.selected)
-            assert(selected == item.current)
-            assert(Location.NotAvailable == item.pinned)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.current)
+            assert(UiLocation.NotAvailable == item.pinned)
             assert(false == item.isLoading)
         }
     }
@@ -227,9 +228,9 @@ class LocationViewModelTest {
         viewModel.uiState.drop(1).test {
             // Then
             val item = awaitItem()
-            assert(selected == item.selected)
-            assert(Available(lat = 3.0, long = 4.0) == item.current)
-            assert(Location.NotAvailable == item.pinned)
+            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
+            assert(UiLocation.Map(lat = 3.0, long = 4.0) == item.current)
+            assert(UiLocation.NotAvailable == item.pinned)
             assert(item.isLoading)
         }
     }

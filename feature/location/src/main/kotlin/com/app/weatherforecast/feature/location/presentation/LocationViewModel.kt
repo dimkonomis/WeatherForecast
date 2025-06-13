@@ -3,12 +3,12 @@ package com.app.weatherforecast.feature.location.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.weatherforecast.contract.location.Location.Available
-import com.app.weatherforecast.contract.location.Location.NotAvailable
 import com.app.weatherforecast.core.model.AsyncResult
 import com.app.weatherforecast.core.model.AsyncResult.Success
 import com.app.weatherforecast.core.utils.DispatcherProvider
 import com.app.weatherforecast.core.utils.optional
 import com.app.weatherforecast.feature.location.domain.LocationUseCase
+import com.app.weatherforecast.feature.location.presentation.LocationUiState.UiLocation
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -44,21 +44,40 @@ internal class LocationViewModel @Inject constructor(
         .map { state ->
             val selected = when {
                 state.selected is Success && state.selected.value is Available -> {
-                    state.selected.value
+                    val available = state.selected.value as Available
+                    UiLocation.Pinned(
+                        name = available.name,
+                        lat = available.lat,
+                        long = available.long
+                    )
                 }
-                else -> NotAvailable
+                else -> UiLocation.NotAvailable
             }
             val current = when {
-                state.current is Success -> Available(
+                state.current is Success -> UiLocation.Map(
                     lat = state.current.value.lat,
                     long = state.current.value.long
                 )
-                state.selected is Success && state.selected.value is Available -> state.selected.value
-                else -> NotAvailable
+                state.selected is Success && state.selected.value is Available -> {
+                    val available = state.selected.value as Available
+                    UiLocation.Pinned(
+                        name = available.name,
+                        lat = available.lat,
+                        long = available.long
+                    )
+                }
+                else -> UiLocation.NotAvailable
             }
             val pinned = when {
-                state.decode is Success && state.decode.value is Available -> state.decode.value
-                else -> NotAvailable
+                state.decode is Success && state.decode.value is Available -> {
+                    val available = state.decode.value as Available
+                    UiLocation.Pinned(
+                        name = available.name,
+                        lat = available.lat,
+                        long = available.long
+                    )
+                }
+                else -> UiLocation.NotAvailable
             }
             LocationUiState(
                 selected = selected,

@@ -35,6 +35,7 @@ import com.app.weatherforecast.feature.location.R
 import com.app.weatherforecast.feature.location.presentation.LocationUiAction.Navigation
 import com.app.weatherforecast.feature.location.presentation.LocationUiAction.RequestLocation
 import com.app.weatherforecast.feature.location.presentation.LocationUiAction.SelectLocation
+import com.app.weatherforecast.feature.location.presentation.LocationUiState.UiLocation
 import com.app.weatherforecast.feature.location.presentation.components.Header
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -168,7 +169,7 @@ private fun LocationContent(
 
             LaunchedEffect(uiState.current) {
                 when (val current = uiState.current) {
-                    is Location.Available -> cameraPositionState.animate(
+                    is UiLocation.Map -> cameraPositionState.animate(
                         update = CameraUpdateFactory.newLatLngZoom(LatLng(current.lat, current.long), 12f),
                         durationMs = 500
                     )
@@ -185,7 +186,7 @@ private fun LocationContent(
                 onMapLongClick = { actions(SelectLocation(it))  },
             ) {
                 when (val pinned = uiState.pinned) {
-                    is Location.Available -> MarkerComposable(
+                    is UiLocation.Pinned -> MarkerComposable(
                         state = MarkerState(position = LatLng(pinned.lat, pinned.long)),
                         title = pinned.name
                     ) {
@@ -196,14 +197,14 @@ private fun LocationContent(
                             modifier = Modifier.size(48.dp)
                         )
                     }
-                    Location.NotAvailable -> Unit
+                    else -> Unit
                 }
                 when (val selected = uiState.selected) {
-                    is Location.Available -> Marker(
+                    is UiLocation.Pinned -> Marker(
                         state = MarkerState(position = LatLng(selected.lat, selected.long)),
                         title = selected.name
                     )
-                    Location.NotAvailable -> Unit
+                    else -> Unit
                 }
             }
 

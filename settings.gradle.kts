@@ -29,4 +29,5 @@ include(":core:test")
 include(":core:ui")
 include(":core:utils")
 include(":feature:location")
+include(":feature:weather")
  

@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:location"))
+    implementation(project(":feature:weather"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
