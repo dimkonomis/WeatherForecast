@@ -25,9 +25,9 @@ internal class LocationDecoder @Inject constructor(
         fun handleAddresses(addresses: List<Address>) {
             when {
                 addresses.isNotEmpty() -> addresses.first()
-                    .let { address ->
+                    .let { a ->
                         val location = Location.Available(
-                            name = address.locality,
+                            name = a.locality ?: a.subLocality ?: a.subAdminArea ?: a.adminArea ?: "Unknown",
                             lat = lat,
                             long = long,
                         )
@@ -39,7 +39,7 @@ internal class LocationDecoder @Inject constructor(
 
         if (sdkProvider.sdkInt >= Build.VERSION_CODES.TIRAMISU) {
             @Suppress("NewApi")
-            geocoder.getFromLocation(lat, long, 1) { addresses -> handleAddresses(addresses) }
+            geocoder.getFromLocation(lat, long, 10) { addresses -> handleAddresses(addresses) }
         } else {
             val addresses = geocoder.getFromLocation(lat, long, 1)
             if (addresses != null) {

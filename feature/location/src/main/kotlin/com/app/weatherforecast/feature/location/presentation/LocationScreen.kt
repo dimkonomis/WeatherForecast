@@ -28,7 +28,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.app.weatherforecast.contract.location.Location
+import com.app.weatherforecast.core.navigation.Back.Companion.back
+import com.app.weatherforecast.core.navigation.RouteViewModel
+import com.app.weatherforecast.core.navigation.WeatherRoute
 import com.app.weatherforecast.core.ui.extensions.SingleEventEffect
 import com.app.weatherforecast.core.ui.extensions.dismiss
 import com.app.weatherforecast.feature.location.R
@@ -53,6 +55,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun LocationScreen() {
     val context = LocalContext.current
+    val routeViewModel: RouteViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalContext.current as androidx.activity.ComponentActivity
+    )
     val viewModel = hiltViewModel<LocationViewModel>()
     val permissionState = rememberMultiplePermissionsState(
         permissions = listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
@@ -99,8 +104,7 @@ fun LocationScreen() {
             when (action) {
                 is SelectLocation -> viewModel.decodeLocation(action.latLng)
                 RequestLocation -> permissionState.launchMultiplePermissionRequest()
-                Navigation.Back -> TODO()
-                Navigation.Forecast -> TODO()
+                Navigation.Back -> routeViewModel.navigate(back)
             }
         }
     }
@@ -118,6 +122,7 @@ fun LocationScreen() {
                 when (result) {
                     SnackbarResult.ActionPerformed -> {
                         viewModel.select(effect.available)
+                        routeViewModel.navigate(WeatherRoute(popupTo = effect.popupTo))
                     }
                     SnackbarResult.Dismissed -> Unit
                 }
@@ -152,11 +157,11 @@ private fun LocationContent(
                 Snackbar(
                     snackbarData = it,
                     containerColor = MaterialTheme.colorScheme.background,
-                    actionColor = MaterialTheme.colorScheme.primary,
+                    actionColor = MaterialTheme.colorScheme.primary
                 )
             }
         },
-        topBar = { Header(actions) }
+        topBar = { Header(uiState.shouldShowBackButton, actions) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

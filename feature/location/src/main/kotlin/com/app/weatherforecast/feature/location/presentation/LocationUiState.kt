@@ -1,6 +1,7 @@
 package com.app.weatherforecast.feature.location.presentation
 
 import com.app.weatherforecast.contract.location.Location
+import com.app.weatherforecast.core.navigation.Route
 import com.google.android.gms.maps.model.LatLng
 
 /**
@@ -9,12 +10,15 @@ import com.google.android.gms.maps.model.LatLng
  * - [selected] - The selected location.
  * - [current] - The location based on device location.
  * - [pinned] - The new pinned location.
+ * - [isLoading] - Indicates if the pinned location is being decoded.
+ * - [shouldShowBackButton] - Indicates if the back button should be shown.
  */
 internal data class LocationUiState(
     val selected: UiLocation = UiLocation.NotAvailable,
     val current: UiLocation = UiLocation.NotAvailable,
     val pinned: UiLocation = UiLocation.NotAvailable,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val shouldShowBackButton: Boolean = false
 ) {
 
     sealed interface UiLocation {
@@ -45,13 +49,15 @@ internal sealed interface LocationUiAction {
     data object RequestLocation : LocationUiAction
 
     sealed interface Navigation : LocationUiAction {
-        data object Forecast : Navigation
         data object Back : LocationUiAction
     }
 
 }
 
 internal sealed interface LocationUiEffect {
-    data class ShowNewSelection(val available: Location.Available) : LocationUiEffect
+    data class ShowNewSelection(
+        val available: Location.Available,
+        val popupTo: Route.PopupTo
+    ) : LocationUiEffect
     data object ShowNewSelectionError : LocationUiEffect
 }

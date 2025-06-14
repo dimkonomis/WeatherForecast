@@ -1,5 +1,9 @@
 package com.app.weatherforecast.feature.weather.presentation
 
+import java.text.DecimalFormat
+
+internal val decimalFormatter = DecimalFormat("#.#")
+
 internal val dummyWeatherUiState = WeatherUiState.Success(
     location = "New York",
     current = WeatherUiState.Success.Current(

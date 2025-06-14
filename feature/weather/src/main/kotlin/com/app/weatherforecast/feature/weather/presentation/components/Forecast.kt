@@ -22,6 +22,7 @@ import coil3.annotation.ExperimentalCoilApi
 import com.app.weatherforecast.core.ui.theme.AppTheme
 import com.app.weatherforecast.feature.weather.R
 import com.app.weatherforecast.feature.weather.presentation.WeatherUiState.Success.Forecast
+import com.app.weatherforecast.feature.weather.presentation.decimalFormatter
 import com.app.weatherforecast.feature.weather.presentation.dummyWeatherUiState
 
 @Composable
@@ -60,7 +61,10 @@ internal fun Forecast(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(R.string.weather_label_placeholder_temperature, forecast.min),
+            text = stringResource(
+                R.string.weather_label_placeholder_temperature,
+                decimalFormatter.format(forecast.min)
+            ),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),
@@ -70,7 +74,10 @@ internal fun Forecast(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stringResource(R.string.weather_label_placeholder_temperature, forecast.max),
+            text = stringResource(
+                R.string.weather_label_placeholder_temperature,
+                decimalFormatter.format(forecast.max)
+            ),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),

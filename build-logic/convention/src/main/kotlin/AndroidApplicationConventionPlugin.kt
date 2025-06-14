@@ -65,6 +65,18 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
+                add("implementation", platform(libraries.findLibrary("androidx.compose.bom").get()))
+                add("implementation", libraries.findLibrary("androidx.compose.ui").get())
+                add("implementation", libraries.findLibrary("androidx.compose.ui.tooling.preview").get())
+                add("implementation", libraries.findLibrary("androidx.compose.material3").get())
+                add("debugImplementation", libraries.findLibrary("androidx.compose.ui.tooling").get())
+                add("debugImplementation", libraries.findLibrary("androidx-compose-ui-test").get())
+
+                add("testImplementation", libraries.findLibrary("junit").get())
+                add("testImplementation", libraries.findLibrary("turbine").get())
+                add("testImplementation", libraries.findLibrary("mockk").get())
+                add("testImplementation", libraries.findLibrary("kotlinx.coroutines.test").get())
+
                 add("coreLibraryDesugaring", libraries.findLibrary("desugar").get())
             }
 

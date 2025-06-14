@@ -24,6 +24,7 @@ rootProject.name = "Weather Forecast"
 include(":app")
 include(":contract:location")
 include(":core:model")
+include(":core:navigation")
 include(":core:net")
 include(":core:test")
 include(":core:ui")

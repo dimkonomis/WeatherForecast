@@ -3,6 +3,7 @@ package com.app.weatherforecast.feature.location.domain
 import com.app.weatherforecast.contract.location.Location.Available
 import com.app.weatherforecast.contract.location.LocationRepository
 import com.app.weatherforecast.core.model.AsyncResult
+import com.app.weatherforecast.core.test.TestFlow.Companion.testFlow
 import com.app.weatherforecast.core.utils.DispatcherProvider
 import com.app.weatherforecast.feature.location.data.LocationDecoder
 import com.app.weatherforecast.feature.location.data.LocationDecoder.DecodeResult
@@ -12,11 +13,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -25,7 +26,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocationUseCaseTest {
 
-    private val dispatcher = UnconfinedTestDispatcher()
+    private val dispatcher = StandardTestDispatcher()
     private val locationProvider: LocationProvider = mockk()
     private val locationDecoder: LocationDecoder = mockk()
     private val locationRepository: LocationRepository = mockk()
@@ -50,126 +51,154 @@ class LocationUseCaseTest {
     fun `findCurrentLocation emits Loading then Success`() = runTest(dispatcher) {
         // Given
         val location = LocationResult(1.0, 2.0)
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationProvider.location() } returns flow { delay(50); emit(location) }
+        every { locationProvider.location() } returns flow { emit(location) }
 
-        // When
-        locationUseCase.findCurrentLocation()
-
-        // Then
-        assert(AsyncResult.Loading == states[1].current)
-        assert(AsyncResult.Success(location) == states[2].current)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.current }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.findCurrentLocation()
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Success(location)
+                )
+            }
     }
 
     @Test
     fun `findCurrentLocation emits Loading then Failure`() = runTest(dispatcher) {
         // Given
         val error = RuntimeException("Location error")
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationProvider.location() } returns flow { delay(50); throw error }
+        every { locationProvider.location() } returns flow { throw error }
 
-        // When
-        locationUseCase.findCurrentLocation()
-
-        // Then
-        assert(AsyncResult.Loading == states[1].current)
-        assert(AsyncResult.Failure(error) == states[2].current)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.current }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.findCurrentLocation()
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Failure(error)
+                )
+            }
     }
 
     @Test
     fun `findSelectedLocation emits Loading then Success`() = runTest(dispatcher) {
         // Given
         val location = Available("Test Location", 1.0, 2.0)
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationRepository.selected } returns flow { delay(50); emit(location) }
+        every { locationRepository.selected } returns flow { emit(location) }
 
-        // When
-        locationUseCase.findSelectedLocation()
-
-        // Then
-        assert(AsyncResult.Loading == states[1].selected)
-        assert(AsyncResult.Success(location) == states[2].selected)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.selected }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.findSelectedLocation()
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Success(location)
+                )
+            }
     }
 
     @Test
     fun `findSelectedLocation emits Loading then Failure`() = runTest(dispatcher) {
         // Given
         val error = RuntimeException("Location error")
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationRepository.selected } returns flow { delay(50); throw error }
+        every { locationRepository.selected } returns flow { throw error }
 
-        // When
-        locationUseCase.findSelectedLocation()
-
-        // Then
-        assert(AsyncResult.Loading == states[1].selected)
-        assert(AsyncResult.Failure(error) == states[2].selected)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.selected }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.findSelectedLocation()
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Failure(error)
+                )
+            }
     }
 
     @Test
     fun `decodeLocation emits Loading then Success`() = runTest(dispatcher) {
         // Given
         val result = DecodeResult.Success(Available("Test Location", 1.0, 2.0))
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { delay(50); emit(result) }
+        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { emit(result) }
 
-        // When
-        locationUseCase.decodeLocation(1.0, 2.0)
-
-        // Then
-        assert(AsyncResult.Loading == states[1].decode)
-        assert(AsyncResult.Success(result.location) == states[2].decode)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.decode }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.decodeLocation(1.0, 2.0)
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Success(result.location)
+                )
+            }
     }
 
     @Test
     fun `decodeLocation emits Loading then AddressNotFound`() = runTest(dispatcher) {
         // Given
         val result = DecodeResult.AddressNotFound
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { delay(50); emit(result) }
+        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { emit(result) }
 
-        // When
-        locationUseCase.decodeLocation(1.0, 2.0)
-
-        // Then
-        assert(AsyncResult.Loading == states[1].decode)
-        assert(AsyncResult.Failure(Throwable("Address not found")) == states[2].decode)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.decode }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.decodeLocation(1.0, 2.0)
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Failure(Throwable("Address not found"))
+                )
+            }
     }
 
     @Test
     fun `decodeLocation emits Loading then Failure`() = runTest(dispatcher) {
         // Given
         val error = RuntimeException("Decode error")
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
-        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { delay(50); throw error }
+        every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { throw error }
 
-        // When
-        locationUseCase.decodeLocation(1.0, 2.0)
-
-        // Then
-        assert(AsyncResult.Loading == states[1].decode)
-        assert(AsyncResult.Failure(error) == states[2].decode)
-
-        job.cancel()
+        locationUseCase
+            .state
+            .map { it.decode }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    locationUseCase.decodeLocation(1.0, 2.0)
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Failure(error)
+                )
+            }
     }
 
     @Test
@@ -177,19 +206,27 @@ class LocationUseCaseTest {
         // Given
         val location = Available("Test Location", 1.0, 2.0)
         val result = DecodeResult.Success(Available("Test Location", 1.0, 2.0))
-        val states = mutableListOf<LocationState>()
-        val job = launch { locationUseCase.state.toList(states) }
+
         every { locationDecoder.decodeLocation(1.0, 2.0) } returns flow { emit(result) }
         coEvery { locationRepository.update(location) } returns Unit
 
-        // When
-        locationUseCase.decodeLocation(1.0, 2.0) // Call decode first to simulate location selection
-        locationUseCase.selectLocation(location)
-
-        // Then
+        locationUseCase
+            .state
+            .map { it.decode }
+            .testFlow(
+                CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+            ) {
+                `when` {
+                    // Call decode first to simulate location selection
+                    locationUseCase.decodeLocation(1.0, 2.0)
+                    locationUseCase.selectLocation(location)
+                }.then(
+                    AsyncResult.NotStarted,
+                    AsyncResult.Loading,
+                    AsyncResult.Success(result.location),
+                    AsyncResult.NotStarted,
+                )
+            }
         coVerify { locationRepository.update(location) }
-        assert(AsyncResult.NotStarted == states[2].decode)
-
-        job.cancel()
     }
 }

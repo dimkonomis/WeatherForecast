@@ -18,7 +18,7 @@ import com.app.weatherforecast.feature.location.presentation.LocationUiAction.Re
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun Header(actions: (LocationUiAction) -> Unit) {
+internal fun Header(shouldShowBackButton: Boolean, actions: (LocationUiAction) -> Unit) {
     TopAppBar(
         title = {
             Text(
@@ -28,6 +28,8 @@ internal fun Header(actions: (LocationUiAction) -> Unit) {
             )
         },
         navigationIcon = {
+            if (shouldShowBackButton.not()) return@TopAppBar
+
             IconButton(onClick = { actions(Navigation.Back) }) {
                 Icon(
                     Icons.AutoMirrored.Default.ArrowBack,

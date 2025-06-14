@@ -23,6 +23,7 @@ import coil3.annotation.ExperimentalCoilApi
 import com.app.weatherforecast.core.ui.theme.AppTheme
 import com.app.weatherforecast.feature.weather.R
 import com.app.weatherforecast.feature.weather.presentation.WeatherUiState.Success.Today
+import com.app.weatherforecast.feature.weather.presentation.decimalFormatter
 import com.app.weatherforecast.feature.weather.presentation.dummyWeatherUiState
 
 @Composable
@@ -54,7 +55,7 @@ internal fun Today(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = stringResource(R.string.weather_label_placeholder_temperature, today.temperature),
+            text = stringResource(R.string.weather_label_placeholder_temperature, decimalFormatter.format(today.temperature)),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),

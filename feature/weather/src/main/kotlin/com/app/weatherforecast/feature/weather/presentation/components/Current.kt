@@ -28,7 +28,9 @@ import coil3.annotation.ExperimentalCoilApi
 import com.app.weatherforecast.core.ui.theme.AppTheme
 import com.app.weatherforecast.feature.weather.R
 import com.app.weatherforecast.feature.weather.presentation.WeatherUiState.Success.Current
+import com.app.weatherforecast.feature.weather.presentation.decimalFormatter
 import com.app.weatherforecast.feature.weather.presentation.dummyWeatherUiState
+import java.text.DecimalFormat
 
 @Composable
 internal fun Current(
@@ -47,7 +49,7 @@ internal fun Current(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.weather_label_placeholder_temperature, current.temperature),
+            text = stringResource(R.string.weather_label_placeholder_temperature, decimalFormatter.format(current.temperature)),
             style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -63,7 +65,7 @@ internal fun Current(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.weather_label_feel_like, current.feelsLike),
+            text = stringResource(R.string.weather_label_feel_like, decimalFormatter.format(current.feelsLike)),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface.copy(
                 alpha = 0.75f
@@ -88,14 +90,14 @@ internal fun Current(
                 ) {
                     Condition(
                         title = stringResource(R.string.weather_label_visibility),
-                        value = stringResource(R.string.weather_label_placeholder_km, current.visibility),
+                        value = stringResource(R.string.weather_label_placeholder_km, decimalFormatter.format(current.visibility)),
                         icon = R.drawable.ic_feels,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Condition(
                         title = stringResource(R.string.weather_label_humidity),
-                        value = stringResource(R.string.weather_label_placeholder_percentage, current.humidity),
+                        value = stringResource(R.string.weather_label_placeholder_percentage, decimalFormatter.format(current.humidity)),
                         icon = R.drawable.ic_humidity,
                         modifier = Modifier.weight(1f)
                     )
@@ -108,14 +110,14 @@ internal fun Current(
                 ) {
                     Condition(
                         title = stringResource(R.string.weather_label_wind),
-                        value = stringResource(R.string.weather_label_placeholder_kmh, current.windSpeed),
+                        value = stringResource(R.string.weather_label_placeholder_kmh, decimalFormatter.format(current.windSpeed)),
                         icon = R.drawable.ic_wind,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Condition(
                         title = stringResource(R.string.weather_label_pressure),
-                        value = stringResource(R.string.weather_label_placeholder_pressure, current.pressure),
+                        value = stringResource(R.string.weather_label_placeholder_pressure, decimalFormatter.format(current.pressure)),
                         icon = R.drawable.ic_pressure,
                         modifier = Modifier.weight(1f)
                     )

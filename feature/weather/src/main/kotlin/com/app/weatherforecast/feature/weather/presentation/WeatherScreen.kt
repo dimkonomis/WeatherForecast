@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.annotation.ExperimentalCoilApi
+import com.app.weatherforecast.core.navigation.LocationRoute
+import com.app.weatherforecast.core.navigation.LocationRoute.Mode
+import com.app.weatherforecast.core.navigation.RouteViewModel
 import com.app.weatherforecast.core.ui.theme.AppTheme
 import com.app.weatherforecast.feature.weather.R
 import com.app.weatherforecast.feature.weather.presentation.WeatherUiAction.Navigation
@@ -44,14 +47,16 @@ import com.app.weatherforecast.feature.weather.presentation.components.Today
 
 @Composable
 fun WeatherScreen() {
-    val context = LocalContext.current
+    val routeViewModel: RouteViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalContext.current as androidx.activity.ComponentActivity
+    )
     val viewModel = hiltViewModel<WeatherViewModel>()
 
     val actions = remember {
         { action: WeatherUiAction ->
             when (action) {
                 Retry -> viewModel.retry()
-                Navigation.SelectLocation -> TODO()
+                Navigation.SelectLocation -> routeViewModel.navigate(LocationRoute(Mode.Update))
             }
         }
     }

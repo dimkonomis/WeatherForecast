@@ -1,9 +1,15 @@
 package com.app.weatherforecast.feature.location.ui
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import app.cash.turbine.test
 import com.app.weatherforecast.contract.location.Location
 import com.app.weatherforecast.contract.location.Location.Available
 import com.app.weatherforecast.core.model.AsyncResult
+import com.app.weatherforecast.core.navigation.LocationRoute
+import com.app.weatherforecast.core.navigation.LocationRoute.Mode
+import com.app.weatherforecast.core.navigation.Route.PopupTo
+import com.app.weatherforecast.core.navigation.WeatherRoute
 import com.app.weatherforecast.core.utils.DispatcherProvider
 import com.app.weatherforecast.feature.location.data.LocationProvider.LocationResult
 import com.app.weatherforecast.feature.location.domain.LocationState
@@ -13,16 +19,19 @@ import com.app.weatherforecast.feature.location.presentation.LocationUiEffect.Sh
 import com.app.weatherforecast.feature.location.presentation.LocationUiState.UiLocation
 import com.app.weatherforecast.feature.location.presentation.LocationViewModel
 import com.google.android.gms.maps.model.LatLng
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -36,11 +45,45 @@ class LocationViewModelTest {
         override val ui = dispatcher
         override val default = dispatcher
     }
+    private val savedState = SavedStateHandle()
 
     @Before
     fun setUp() {
         every { locationUseCase.state } returns MutableStateFlow(LocationState())
         coEvery { locationUseCase.findSelectedLocation() } returns Unit
+
+        mockkStatic("androidx.navigation.SavedStateHandleKt")
+        every { savedState.toRoute<LocationRoute>() } returns LocationRoute(Mode.Create)
+    }
+
+    @After
+    fun tearDown() {
+        clearAllMocks()
+    }
+
+    @Test
+    fun `mode Create shouldShowBackButton is false`() {
+        // Given
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
+
+        // When
+        val shouldShowBackButton = viewModel.uiState.value.shouldShowBackButton
+
+        // Then
+        assert(shouldShowBackButton.not())
+    }
+
+    @Test
+    fun `mode Update shouldShowBackButton is true`() {
+        // Given
+        every { savedState.toRoute<LocationRoute>() } returns LocationRoute(Mode.Update)
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
+
+        // When
+        val shouldShowBackButton = viewModel.uiState.value.shouldShowBackButton
+
+        // Then
+        assert(shouldShowBackButton)
     }
 
     @Test
@@ -49,7 +92,7 @@ class LocationViewModelTest {
         coEvery { locationUseCase.findCurrentLocation() } returns Unit
 
         // When
-        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider)
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
         viewModel.findCurrentLocation()
 
         // Then
@@ -63,7 +106,7 @@ class LocationViewModelTest {
         coEvery { locationUseCase.decodeLocation(latLng.latitude, latLng.longitude) } returns Unit
 
         // When
-        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider)
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
         viewModel.decodeLocation(latLng)
 
         // Then
@@ -77,7 +120,7 @@ class LocationViewModelTest {
         coEvery { locationUseCase.selectLocation(location) } returns Unit
 
         // When
-        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider)
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
         viewModel.select(location)
 
         // Then
@@ -87,7 +130,7 @@ class LocationViewModelTest {
     @Test
     fun `uiState initial state`() = runTest(dispatcher) {
         // Given
-        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider)
+        val viewModel = LocationViewModel(locationUseCase, dispatcherProvider, savedState)
 
         // When
         viewModel.uiState.test {
@@ -114,7 +157,7 @@ class LocationViewModelTest {
             )
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState)
 
         // When
         // Drop the initial state emission from StateFlow
@@ -141,7 +184,7 @@ class LocationViewModelTest {
             )
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState)
 
         // When
         // Drop the initial state emission from StateFlow
@@ -168,7 +211,7 @@ class LocationViewModelTest {
             )
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState)
 
         // When
         // Drop the initial state emission from StateFlow
@@ -176,7 +219,7 @@ class LocationViewModelTest {
             // Then
             val item = awaitItem()
             assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
-            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.current)
+            assert(UiLocation.Map(1.0, 2.0) == item.current)
             assert(UiLocation.Pinned("Test Location", 5.0, 6.0) == item.pinned)
             assert(false == item.isLoading)
         }
@@ -194,7 +237,7 @@ class LocationViewModelTest {
             )
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState)
 
         // When
         // Drop the initial state emission from StateFlow
@@ -202,7 +245,7 @@ class LocationViewModelTest {
             // Then
             val item = awaitItem()
             assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.selected)
-            assert(UiLocation.Pinned("Test Location", 1.0, 2.0) == item.current)
+            assert(UiLocation.Map(1.0, 2.0) == item.current)
             assert(UiLocation.NotAvailable == item.pinned)
             assert(false == item.isLoading)
         }
@@ -221,7 +264,7 @@ class LocationViewModelTest {
             )
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState)
 
         // When
         // Drop the initial state emission from StateFlow
@@ -236,7 +279,7 @@ class LocationViewModelTest {
     }
 
     @Test
-    fun `effects emits ShowNewSelection on decode success`() = runTest(dispatcher) {
+    fun `effects emits ShowNewSelection on decode success and mode Create`() = runTest(dispatcher) {
         // Given
         val decode = Available("Test Location", 5.0, 6.0)
         val stateFlow = createStateFlow()
@@ -244,7 +287,7 @@ class LocationViewModelTest {
             coEvery { state } returns stateFlow
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider).apply {
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState).apply {
             stateFlow.update { it.copy(decode = AsyncResult.Success(decode)) }
         }
 
@@ -252,7 +295,29 @@ class LocationViewModelTest {
         viewModel.effects.test {
             // Then
             val effect = awaitItem()
-            assert(ShowNewSelection(decode) == effect)
+            assert(ShowNewSelection(decode, PopupTo(LocationRoute(Mode.Create), true)) == effect)
+        }
+    }
+
+    @Test
+    fun `effects emits ShowNewSelection on decode success and mode Update`() = runTest(dispatcher) {
+        // Given
+        val decode = Available("Test Location", 5.0, 6.0)
+        val stateFlow = createStateFlow()
+        val useCase = mockk<LocationUseCase> {
+            coEvery { state } returns stateFlow
+            coEvery { findSelectedLocation() } returns Unit
+        }
+        every { savedState.toRoute<LocationRoute>() } returns LocationRoute(Mode.Update)
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState).apply {
+            stateFlow.update { it.copy(decode = AsyncResult.Success(decode)) }
+        }
+
+        // When
+        viewModel.effects.test {
+            // Then
+            val effect = awaitItem()
+            assert(ShowNewSelection(decode, PopupTo(WeatherRoute(), true)) == effect)
         }
     }
 
@@ -265,7 +330,7 @@ class LocationViewModelTest {
             coEvery { state } returns stateFlow
             coEvery { findSelectedLocation() } returns Unit
         }
-        val viewModel = LocationViewModel(useCase, dispatcherProvider).apply {
+        val viewModel = LocationViewModel(useCase, dispatcherProvider, savedState).apply {
             stateFlow.update { it.copy(decode = AsyncResult.Failure(error)) }
         }
 
